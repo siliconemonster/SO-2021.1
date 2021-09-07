@@ -2,8 +2,8 @@
 Trabalho 1
 Integrantes:
 Aline Freire de Rezende - 116110571;
-Gilberto Lopes Inácio FIlho - ;
-Letícia Tavares da Silva - ; */
+Gilberto Lopes Inácio Filho - ;
+Letícia Tavares da Silva - 117210390; */
 
 
 #include <stdio.h>
@@ -30,6 +30,7 @@ void criarFila( struct Fila *f) {
 	f->ultimo = -1;
 
 };
+
 // Insere elemento em uma fila
 void inserir(struct Fila *f, int v) {
 
@@ -53,26 +54,42 @@ int remover( struct Fila *f ) {
 
 };
 
+// Remove elemento em uma fila e o retorna
+int fila_esta_vazia( struct Fila *f ) { 
+
+	if(f->primeiro == 0){
+        return true;
+    }
+		
+	return false;
+
+};
+
+
+
 // Processos
 struct Processo {
 
-    int id; // identificador do processo
+    int pid; // identificador do processo
     int temp_chegada; // instante em que o processo chegou
 	int temp_servico; // tempo de servico processo chegou
-    int inicio_entrada; // tempo apos o inicio do servico em que o processo saira para i/o
-	int temp_entrada; // tempo de duracao da i/o do processo
-    int pid;
+    int temp_restante;
+    int inicio_io; // tempo apos o inicio do servico em que o processo saira para i/o
+    int temp_restante_inicio_io;
+	int tempo_servico_io; // tempo de duracao da i/o do processo
+    
 };
 
 // Funcoes para os processos
 void NovoProcesso( struct Processo *p, int temp_entrada, int id, int temp_chegada) { 
     
-    p->id = id;
+    p->pid = id;
     p ->temp_chegada = temp_chegada;
+    p ->temp_restante = temp_chegada;
 	p->temp_servico = rand() %150;
-	p->inicio_entrada = rand() % p->temp_servico;
-    p->temp_entrada = temp_entrada;
-    p -> pid = 0;
+	p->inicio_io = rand() % p->temp_servico;
+    p-> temp_restante_inicio_io = inicio_io;
+    p->tempo_servico_io = temp_entrada;
 
 
 };
@@ -89,13 +106,15 @@ int main() {
     int tipo_io;
     int fatia_tempo = 5; 
     int processos_finalizados = -1; //contador de processos finalizados
-    int segundo = 0; 
+    int instante = 0; 
     int id_processo = 0;
     int prox_chegada = 0;
+    int tem_io;
+    int em_CPU;
 
 
     // Processos
-    struct Processo processos[100];  
+    struct Processo processos[limite_processos];  
 
     // Filas
     struct Fila fila_baixa_prio; 
@@ -103,26 +122,51 @@ int main() {
     struct Fila fila_io; 
 
     criarFila(&fila_alta_prio);
-    criarFila(&fila_alta_prio);
+    criarFila(&fila_baixa_prio);
     criarFila(&fila_io);
  
     while(processos_finalizados < 9){
         
-        if (segundo == prox_chegada && id_processo < 10) {
+        if (instante == prox_chegada && id_processo < 10) {
 
-            printf("Id %i \n", id_processo);
-            tipo_io = rand() %3;
-            NovoProcesso(&processos[id_processo], duracao_ios[tipo_io], id_processo, segundo);
+            printf("Id %i \n", id_processo); 
+
+            tem_io = rand() %2;
+
+            if (tem_io == 1){
+                tipo_io = rand() %3;
+                NovoProcesso(&processos[id_processo], duracao_ios[tipo_io], id_processo, instante);
+            } 
+
+            else{
+                NovoProcesso(&processos[id_processo], -1, id_processo, instante);
+            }           
+            
             inserir(&fila_alta_prio, id_processo);
-            prox_chegada = segundo + rand() %10;
+            prox_chegada = instante + rand() %20;
 
             id_processo += 1;
-
             processos_finalizados += 1;
 
         }
+
+        if (fila_esta_vazia(&fila_alta_prio) == true){            
+            
+            if (fila_esta_vazia(&fila_baixa_prio) == true){
+                em_CPU = -1;
+            }
+            else{
+                em_CPU = remover(&fila_baixa_prio);
+            }
+            
+        }
+        else{
+            em_CPU = remover(&fila_alta_prio);
+        }
         
-        segundo += 1;
+        
+
+        instante += 1;
          
     }
 

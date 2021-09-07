@@ -1,0 +1,19 @@
+7.
+limite máximo de processos: uma variável
+o valor da fatia de tempo: uma variável
+tempo de cada tipo de i/o: uma variável ou uma lista
+uma struct para processos: tempo de serviço aleatório
+			   tempo de entrada
+			   tempo de i/o aleatório (que começa)
+			   pid
+			   pcb: DESCOBRIR
+ecalonador: função - filas: alta prioridade
+			    baixa prioridade
+			    i/o (talvez uma pra cada tipo)
+		   - condições: disco - retorna para fila de baixa prioridade
+			        fita magnética - retorna para a fila de alta prioridade
+				impressora - retorna para a fila de alta prioridade
+				processos novos - alta prioridade
+				processos que sofrem preempção - retornam na fila de baixa prioridade
+
+

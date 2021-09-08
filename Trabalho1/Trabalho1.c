@@ -95,22 +95,36 @@ void NovoProcesso( struct Processo *p, int temp_entrada, int id, int temp_chegad
 
 };
 
-int aloca_processo_CPU(struct Processo *p){
+int * aloca_processo_CPU(struct Processo *p){
     int tempo_processo_CPU;
+    int tipo_saida;
 
+    // i/o
     if (p->temp_restante_inicio_io < FATIA && p->temp_restante_inicio_io >= 0){
         tempo_processo_CPU = p->temp_restante_inicio_io;
+        p->temp_restante = p->temp_restante - tempo_processo_CPU;
+        p->temp_restante_inicio_io = -1;
+        tipo_saida = 0; // é i/o
     }
     else{
+        // acaba
         if (p->temp_restante < FATIA){
             tempo_processo_CPU = p->temp_restante;
+            p->temp_restante = -1;
+            tipo_saida = -1; // acaba
         }
+        // preempcao
         else{
             tempo_processo_CPU = FATIA;
+            p->temp_restante = p->temp_restante - tempo_processo_CPU;
+            p->temp_restante_inicio_io = p->temp_restante_inicio_io - tempo_processo_CPU;
+            tipo_saida = 1; // é preempcao
         }
     }
 
-    return tempo_processo_CPU;
+    int retorno = {tempo_processo_CPU, tipo_saida};
+
+    return retorno;
 }
 
 
@@ -130,7 +144,7 @@ int main() {
     int prox_chegada = 0;
     int tem_io;
     int em_CPU;
-    int tempo_em_CPU;
+    int * tempo_e_tipo;
 
 
     // Processos
@@ -147,6 +161,7 @@ int main() {
  
     while(processos_finalizados < 9){
         
+        // criação do processo
         if (instante == prox_chegada && id_processo < 10) {
 
             printf("Id %i \n", id_processo); 
@@ -170,20 +185,35 @@ int main() {
 
         }
 
-        if (fila_esta_vazia(&fila_alta_prio) == 1){            
-            
-            if (fila_esta_vazia(&fila_baixa_prio) == 0){
-                em_CPU = -1;
+        // se CPU está vazia, verifica se tem processos em outras filas para pegar
+        if (em_CPU == -1){
+            if (fila_esta_vazia(&fila_alta_prio) == 1){   
+                if (fila_esta_vazia(&fila_baixa_prio) == 0){
+                    em_CPU = -1;
+                }
+                else{
+                    em_CPU = remover(&fila_baixa_prio);
+                    tempo_e_tipo = aloca_processo_CPU(&processos[em_CPU]);
+                }
             }
             else{
-                em_CPU = remover(&fila_baixa_prio);
-                tempo_em_CPU = aloca_processo_CPU(&processos[em_CPU]);
+                em_CPU = remover(&fila_alta_prio);
+                tempo_e_tipo = aloca_processo_CPU(&processos[em_CPU]);
             }
-            
         }
-        else{
-            em_CPU = remover(&fila_alta_prio);
-            tempo_em_CPU = aloca_processo_CPU(&processos[em_CPU]);
+
+        tempo_e_tipo[0]--;
+
+        // se o processo perde a CPU, insere na fila ou termina
+        if(*tempo_e_tipo == 0){ // tempo restante em CPU = 0
+            if (*(tempo_e_tipo+1) == 1){ // preempção
+                inserir(&fila_baixa_prio, id_processo);
+
+            }
+            if (*(tempo_e_tipo+1) == 0){ // i/o
+                inserir(&fila_io, id_processo);
+
+            }
         }
         
         

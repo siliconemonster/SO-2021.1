@@ -11,6 +11,7 @@ Letícia Tavares da Silva - 117210390; */
 #include <string.h>
 #include <time.h>
 #define limite_processos 100
+#define FATIA 5
 
 
 // Estrutura de uma fila
@@ -58,10 +59,10 @@ int remover( struct Fila *f ) {
 int fila_esta_vazia( struct Fila *f ) { 
 
 	if(f->primeiro == 0){
-        return true;
+        return 1;
     }
 		
-	return false;
+	return 0;
 
 };
 
@@ -84,15 +85,33 @@ struct Processo {
 void NovoProcesso( struct Processo *p, int temp_entrada, int id, int temp_chegada) { 
     
     p->pid = id;
-    p ->temp_chegada = temp_chegada;
-    p ->temp_restante = temp_chegada;
+    p->temp_chegada = temp_chegada;
+    p->temp_restante = temp_chegada;
 	p->temp_servico = rand() %150;
 	p->inicio_io = rand() % p->temp_servico;
-    p-> temp_restante_inicio_io = inicio_io;
+    p->temp_restante_inicio_io = p->inicio_io;
     p->tempo_servico_io = temp_entrada;
 
 
 };
+
+int aloca_processo_CPU(struct Processo *p){
+    int tempo_processo_CPU;
+
+    if (p->temp_restante_inicio_io < FATIA && p->temp_restante_inicio_io >= 0){
+        tempo_processo_CPU = p->temp_restante_inicio_io;
+    }
+    else{
+        if (p->temp_restante < FATIA){
+            tempo_processo_CPU = p->temp_restante;
+        }
+        else{
+            tempo_processo_CPU = FATIA;
+        }
+    }
+
+    return tempo_processo_CPU;
+}
 
 
 int main() {
@@ -104,13 +123,14 @@ int main() {
     // 0 -> Disco 1-> Fita Magnetica 2-> Impressora
     int duracao_ios[] = {5,7,12};
     int tipo_io;
-    int fatia_tempo = 5; 
+    //int fatia_tempo = 5; 
     int processos_finalizados = -1; //contador de processos finalizados
     int instante = 0; 
     int id_processo = 0;
     int prox_chegada = 0;
     int tem_io;
     int em_CPU;
+    int tempo_em_CPU;
 
 
     // Processos
@@ -150,18 +170,20 @@ int main() {
 
         }
 
-        if (fila_esta_vazia(&fila_alta_prio) == true){            
+        if (fila_esta_vazia(&fila_alta_prio) == 1){            
             
-            if (fila_esta_vazia(&fila_baixa_prio) == true){
+            if (fila_esta_vazia(&fila_baixa_prio) == 0){
                 em_CPU = -1;
             }
             else{
                 em_CPU = remover(&fila_baixa_prio);
+                tempo_em_CPU = aloca_processo_CPU(&processos[em_CPU]);
             }
             
         }
         else{
             em_CPU = remover(&fila_alta_prio);
+            tempo_em_CPU = aloca_processo_CPU(&processos[em_CPU]);
         }
         
         

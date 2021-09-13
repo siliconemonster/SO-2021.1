@@ -84,6 +84,7 @@ struct Processo {
     int inicio_io; // Tempo apos o inicio do servico em que o processo saira para i/o
     int temp_restante_inicio_io; // Quanto tempo de CPU ainda falta para o processo sair para i/o
 	int tempo_servico_io; // Tempo de duracao da i/o do processo
+    int tempo_finalizacao;
     
 };
 
@@ -107,7 +108,7 @@ void NovoProcesso( struct Processo *p, int temp_entrada, int id, int temp_chegad
     else{
         p->inicio_io = 0;
         while(p->inicio_io == 0){
-            p->inicio_io = rand() % p->temp_servico == 0;
+            p->inicio_io = rand() % p->temp_servico;
         }
 
         p->temp_restante_inicio_io = p->inicio_io;
@@ -136,6 +137,7 @@ int main() {
     int cont_print; // contador para printar elementos de uma fila
     int indice; // Utilizado para print
     int tempo_restante_cpu; // tempo restante de CPU do processo que a esta usando
+    int turnarounds[limite_processos];
 
     // Processos
     struct Processo processos[limite_processos];  
@@ -215,20 +217,21 @@ int main() {
 
             printf("Processo %i tem %is restante de CPU.\n" , em_CPU, tempo_restante_cpu);
 
+            
             // Se o tempo de CPU do processo acabou
             if (tempo_restante_cpu == 0){
 
-                // O tempo acabou porque o processo finalizou
-                if (processos[em_CPU].temp_restante == 0){
-                    printf("Processo %i finalizado.\n" , em_CPU);
-                    processos_finalizados += 1;                
-                }
-
                 // O tempo acabou porque o processo saiu pra i/o
-                else if (processos[em_CPU].temp_restante_inicio_io == 0){
+                if (processos[em_CPU].temp_restante_inicio_io == 0){
                     printf("Processo %i sai da CPU e vai pra fila de I/O.\n" , em_CPU);
                     inserir(&fila_io, em_CPU);
                     processos[em_CPU].temp_restante_inicio_io = -1;                
+                }
+                // O tempo acabou porque o processo finalizou
+                else if (processos[em_CPU].temp_restante == 0){
+                    printf("Processo %i finalizado.\n" , em_CPU);
+                    processos[em_CPU].tempo_finalizacao = instante;
+                    processos_finalizados += 1;                
                 }
 
                 // O tempo acabou porque a fatia acabou
@@ -242,7 +245,7 @@ int main() {
           
         }    
 
-        // Sse CPU está vazia, verifica se tem processos em outras filas (de alta e de baixa) para pegar
+        // Se CPU está vazia, verifica se tem processos em outras filas (de alta e de baixa) para pegar
         if (em_CPU == -1) {
             printf("CPU Vazia. \n");
 
@@ -295,21 +298,9 @@ int main() {
 
         }  
 
-        // Se i/o nao estah sendo utilizada
-        if (em_io == -1){
-            
-            // Se fila pra io nao estah vazia, primeiro da fila assume i/o
-            if (fila_esta_vazia(&fila_io) == 0){   
-                em_io = remover(&fila_io);
-                printf("Processo %i entrou em I/O. \n", em_io);
-                // Tempo de i/o do preocesso
-                tempo_io = processos[em_io].tempo_servico_io;
-            }
-            
-        } 
-        
+                
         // Se i/o está sendo utilizada
-        else{
+        if (em_io != -1){
             tempo_io--;
             printf("Processo %i tem %is restante de I/O.\n" , em_io, tempo_io);
             
@@ -324,21 +315,63 @@ int main() {
                     if(processos[em_io].tempo_servico_io != 5){
                         inserir(&fila_alta_prio, em_io);
                         printf("Processo %i volta pra fila de alta prioridade. \n", em_io);
+                        if (em_CPU == -1) {
+                            em_CPU = remover(&fila_alta_prio);
+                            printf("Processo %i assume CPU\n", em_CPU);      
+
+                            tempo_restante_cpu = FATIA;
+                            if (processos[em_CPU].temp_restante < tempo_restante_cpu){
+                                tempo_restante_cpu = processos[em_CPU].temp_restante;
+                            }
+                            if (processos[em_CPU].temp_restante_inicio_io < tempo_restante_cpu &&  
+                            processos[em_CPU].temp_restante_inicio_io > 0){
+                                tempo_restante_cpu = processos[em_CPU].temp_restante_inicio_io;
+                            }                       
+                        }
                     }
                     else{
                         inserir(&fila_baixa_prio, em_io);
                         printf("Processo %i volta pra fila de baixa prioridade. \n", em_io);
+                        if (em_CPU == -1) {
+                            em_CPU = remover(&fila_baixa_prio);
+                            printf("Processo %i assume CPU\n", em_CPU); 
+                                            tempo_restante_cpu = FATIA;
+                            if (processos[em_CPU].temp_restante < tempo_restante_cpu){
+                                tempo_restante_cpu = processos[em_CPU].temp_restante;
+                            }
+                            if (processos[em_CPU].temp_restante_inicio_io < tempo_restante_cpu &&  
+                            processos[em_CPU].temp_restante_inicio_io > 0){
+                                tempo_restante_cpu = processos[em_CPU].temp_restante_inicio_io;
+                            }
+                            
+                        }
                     }
+                    
                     
                 }
                 else{
                     processos_finalizados += 1;
+                    processos[em_io].tempo_finalizacao = instante;
                     printf("Processo %i finalizado. \n", em_io);
                 }
-                // i/o fica vazia
+                
                 em_io = -1;
             }
-        }       
+        }
+        
+        // Se i/o nao estah sendo utilizada
+        if (em_io == -1){
+            
+            // Se fila pra io nao estah vazia, primeiro da fila assume i/o
+            if (fila_esta_vazia(&fila_io) == 0){   
+                em_io = remover(&fila_io);
+                printf("Processo %i entrou em I/O. \n", em_io);
+                // Tempo de i/o do preocesso
+                tempo_io = processos[em_io].tempo_servico_io;
+            }
+            
+        } 
+            
 
         // Aumenta o instante em 1 segundo 
         instante += 1;
@@ -361,6 +394,10 @@ int main() {
         }
         printf("\n");
         
+    }
+
+    for (cont_print = 0; cont_print < limite_processos; cont_print++){
+            turnarounds[cont_print] = processos[cont_print].tempo_finalizacao - processos[cont_print].temp_chegada;
     }
 
     printf("Acabou");

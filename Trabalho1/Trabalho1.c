@@ -3,7 +3,7 @@ Trabalho 1
 Integrantes:
 Aline Freire de Rezende - 116110571;
 Gilberto Lopes Inácio Filho - ;
-Letícia Tavares da Silva - 117210390; 
+Leticia Tavares da Silva - 117210390; 
 */
 
 
@@ -19,9 +19,9 @@ Letícia Tavares da Silva - 117210390;
 struct Fila {
 
 	int elementos[limite_processos]; // Elementos serao ids dos procesoss
-	int primeiro; // primeiro elemento da fila
-	int ultimo; // ultimo elemento da fila
-    int num_Processos; // numero de processos na fila
+	int primeiro; // Primeiro elemento da fila
+	int ultimo; // Ultimo elemento da fila
+    int num_Processos; // Numero de processos na fila
 };
 
 // Funcoes para as filas
@@ -56,11 +56,11 @@ int remover( struct Fila *f ) {
 	if(f->primeiro == limite_processos)
 		f->primeiro = 0;
    
-	return temp; // retorna o elemento retirado
+	return temp; // Retorna o elemento retirado
 
 };
 
-// Verifica se uma fila está vazia
+// Verifica se uma fila estah vazia
 // Retorna 1 se sim e 0 se nao
 int fila_esta_vazia( struct Fila *f ) { 
 
@@ -77,13 +77,13 @@ int fila_esta_vazia( struct Fila *f ) {
 // Processos
 struct Processo {
 
-    int pid; // identificador do processo
-    int temp_chegada; // instante em que o processo chegou
-	int temp_servico; // tempo de servico do processo
+    int pid; // Identificador do processo
+    int temp_chegada; // Instante em que o processo chegou
+	int temp_servico; // Tempo de servico do processo
     int temp_restante; // Quanto tempo de CPU ainda falta para o processo finalizar
-    int inicio_io; // tempo apos o inicio do servico em que o processo saira para i/o
+    int inicio_io; // Tempo apos o inicio do servico em que o processo saira para i/o
     int temp_restante_inicio_io; // Quanto tempo de CPU ainda falta para o processo sair para i/o
-	int tempo_servico_io; // tempo de duracao da i/o do processo
+	int tempo_servico_io; // Tempo de duracao da i/o do processo
     
 };
 
@@ -115,22 +115,22 @@ void NovoProcesso( struct Processo *p, int temp_entrada, int id, int temp_chegad
 int main() {
 
 
-    srand(time(NULL)); // para geracao de numero pseudo aleatorio
+    srand(time(NULL)); // Para geracao de numero pseudo aleatorio
     
-    // Lista com a duracao de cada tipo de I/O
+    // Lista com a duracao de cada tipo de i/o
     // 0 -> Disco 1-> Fita Magnetica 2-> Impressora
     int duracao_ios[] = {5,7,12};
     int processos_finalizados = 0; //contador de processos finalizados
     int instante = 0;  // Instante inicial tempo = 0s
     int id_processo = 0; // Identificador de cada processo, o primeiro é o 0
     int prox_chegada = 0; // Em quanto tempo chegará o próximo processo
-    int tem_io; // Indica se o processo sai para IO
-    int tipo_io; 
-    int tempo_io;
+    int tem_io; // Indica se o processo sai para i/o
+    int tipo_io; // Indica qual eh o tipo de i/o
+    int tempo_io; // Tempo que ainda resta de i/o do processo que esta executando
     int em_CPU = -1; // CPU se inicia vazia
     int em_io = -1; // IO se inicia vazia
     int cont_print; // contador para printar elementos de uma fila
-    int indice;
+    int indice; // Utilizado para print
     int tempo_restante_cpu; // tempo restante de CPU do processo que a esta usando
 
     // Processos
@@ -151,7 +151,7 @@ int main() {
         printf("Instante %is \n\n", instante); 
         
         
-        // criação do processo
+        // Criação do processo
         if (instante == prox_chegada && id_processo < limite_processos) {
 
             tem_io = rand() %2; // 50% de ter que sair pra i/o
@@ -201,7 +201,7 @@ int main() {
 
         }
 
-        // Se a CPU não está vazia
+        // Se a CPU nao estah vazia
         if (em_CPU != -1){
             
             // Desconta o instante passado do tempo do Processo
@@ -220,7 +220,7 @@ int main() {
                     processos_finalizados += 1;                
                 }
 
-                // O tempo acabou porque o processo saiu pra I/O
+                // O tempo acabou porque o processo saiu pra i/o
                 else if (processos[em_CPU].temp_restante_inicio_io == 0){
                     printf("Processo %i sai da CPU e vai pra fila de I/O.\n" , em_CPU);
                     inserir(&fila_io, em_CPU);                
@@ -237,7 +237,7 @@ int main() {
           
         }    
 
-        // se CPU está vazia, verifica se tem processos em outras filas (de alta e de baixa) para pegar
+        // Sse CPU está vazia, verifica se tem processos em outras filas (de alta e de baixa) para pegar
         if (em_CPU == -1) {
             printf("CPU Vazia. \n");
 
@@ -273,26 +273,26 @@ int main() {
 
         }  
 
-        // Se io não está sendo utilizada
+        // Se i/o nao estah sendo utilizada
         if (em_io == -1){
             
-            // se fila pra io não está vazia, primeiro da fila assume I/O
+            // Se fila pra io nao estah vazia, primeiro da fila assume i/o
             if (fila_esta_vazia(&fila_io) == 0){   
                 em_io = remover(&fila_io);
                 printf("Processo %i entrou em I/O. \n", em_io);
-                // tempo de i/o do preocesso
+                // Tempo de i/o do preocesso
                 tempo_io = processos[em_io].tempo_servico_io;
             }
             
         } 
         
-        // Se I/O está sendo utilizada
+        // Se i/o está sendo utilizada
         else{
             tempo_io--;
             printf("Processo %i tem %is restante de I/O.\n" , em_io, tempo_io);
             
-            // Se tempo de I/O do processo acabar, ele volta pra fila de alta ou baixa prioridade
-            // Dependendo da I/O em que estava e I/O fica vazia
+            // Se tempo de i/o do processo acabar, ele volta pra fila de alta ou baixa prioridade
+            // Dependendo da i/o em que estava e i/o fica vazia
             if (tempo_io == 0){
 
                 printf("Processo %i saiu de I/O. \n", em_io);
@@ -313,7 +313,7 @@ int main() {
                     processos_finalizados += 1;
                     printf("Processo %i finalizado. \n", em_io);
                 }
-                // I/O fica vazia
+                // i/o fica vazia
                 em_io = -1;
             }
         }       

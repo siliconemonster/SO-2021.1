@@ -156,6 +156,7 @@ int main() {
 
             tem_io = rand() %2; // 50% de ter que sair pra i/o
 
+            // Se tiver i/o, gera aleatoriamente o tipo da i/o
             if (tem_io == 1){
                 tipo_io = rand() %3;
                 NovoProcesso(&processos[id_processo], duracao_ios[tipo_io], id_processo, instante);
@@ -165,16 +166,19 @@ int main() {
                 NovoProcesso(&processos[id_processo], -1, id_processo, instante);
             }           
             
+            // Insere o novo processo na fila de alta prioridade
             inserir(&fila_alta_prio, id_processo);
             while(prox_chegada == instante){
                 prox_chegada = instante + rand() %5;
             }
-
+            // Prints
             printf("----------------------------------------\n\n"); 
             printf("Processo Id = %i criado\n", id_processo); 
             printf("Momento Chegada: %i\n", instante);
             printf("Tempo Servico: %i\n", processos[id_processo].temp_servico);
             printf("Tipo de I/O:");
+
+            // Se o processo tiver i/o, printa qual eh
             if(processos[id_processo].tempo_servico_io != -1){
                 if (processos[id_processo].tempo_servico_io == 5){
                 printf(" Disco\n");
@@ -276,6 +280,7 @@ int main() {
             if (fila_esta_vazia(&fila_io) == 0){   
                 em_io = remover(&fila_io);
                 printf("Processo %i entrou em I/O. \n", em_io);
+                // tempo de i/o do preocesso
                 tempo_io = processos[em_io].tempo_servico_io;
             }
             

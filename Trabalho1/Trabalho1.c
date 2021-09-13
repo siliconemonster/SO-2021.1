@@ -105,7 +105,11 @@ void NovoProcesso( struct Processo *p, int temp_entrada, int id, int temp_chegad
         p->tempo_servico_io = -1;
     }
     else{
-        p->inicio_io = rand() % p->temp_servico;
+        p->inicio_io = 0;
+        while(p->inicio_io == 0){
+            p->inicio_io = rand() % p->temp_servico == 0;
+        }
+
         p->temp_restante_inicio_io = p->inicio_io;
         p->tempo_servico_io = temp_entrada;
     }
@@ -172,7 +176,7 @@ int main() {
                 prox_chegada = instante + rand() %5;
             }
             // Prints
-            printf("----------------------------------------\n\n"); 
+            printf("----------------------------------------\n"); 
             printf("Processo Id = %i criado\n", id_processo); 
             printf("Momento Chegada: %i\n", instante);
             printf("Tempo Servico: %i\n", processos[id_processo].temp_servico);

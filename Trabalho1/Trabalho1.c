@@ -276,7 +276,7 @@ int main() {
             if (fila_esta_vazia(&fila_io) == 0){   
                 em_io = remover(&fila_io);
                 printf("Processo %i entrou em I/O. \n", em_io);
-                tempo_io = aloca_processo_io(&processos[em_io]);
+                tempo_io = processos[em_io].tempo_servico_io;
             }
             
         } 

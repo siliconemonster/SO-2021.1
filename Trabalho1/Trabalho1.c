@@ -2,7 +2,7 @@
 Trabalho 1
 Integrantes:
 Aline Freire de Rezende - 116110571;
-Gilberto Lopes Inácio Filho - ;
+Gilberto Lopes Inácio Filho - 115173699;
 Leticia Tavares da Silva - 117210390; 
 */
 
@@ -223,7 +223,8 @@ int main() {
                 // O tempo acabou porque o processo saiu pra i/o
                 else if (processos[em_CPU].temp_restante_inicio_io == 0){
                     printf("Processo %i sai da CPU e vai pra fila de I/O.\n" , em_CPU);
-                    inserir(&fila_io, em_CPU);                
+                    inserir(&fila_io, em_CPU);
+                    processos[em_CPU].temp_restante_inicio_io = -1;                
                 }
 
                 // O tempo acabou porque a fatia acabou
@@ -251,7 +252,8 @@ int main() {
                 else{
                     em_CPU = remover(&fila_baixa_prio);
                     if (processos[em_CPU].temp_restante_inicio_io == 0){
-                        inserir(&fila_io, em_CPU);   
+                        inserir(&fila_io, em_CPU);
+                        processos[em_CPU].temp_restante_inicio_io = -1;   
                         em_CPU = -1;
                     }  
                     else{
@@ -264,7 +266,8 @@ int main() {
             else{
                 em_CPU = remover(&fila_alta_prio);
                 if (processos[em_CPU].temp_restante_inicio_io == 0){
-                    inserir(&fila_io, em_CPU);   
+                    inserir(&fila_io, em_CPU);
+                    processos[em_CPU].temp_restante_inicio_io = -1;   
                     em_CPU = -1;
                 }  
                 else{

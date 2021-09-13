@@ -249,13 +249,27 @@ int main() {
                     
                 }
                 else{
-                    em_CPU = remover(&fila_baixa_prio);                 
+                    em_CPU = remover(&fila_baixa_prio);
+                    if (processos[em_CPU].temp_restante_inicio_io == 0){
+                        inserir(&fila_io, em_CPU);   
+                        em_CPU = -1;
+                    }  
+                    else{
+                        printf("Processo %i assume CPU\n", em_CPU);  
+                    }
+                                 
                 }
             }
             // Caso a fila de alta prioridade nao esteja vazia, o primeiro da fila assume a CPU
             else{
                 em_CPU = remover(&fila_alta_prio);
-                printf("Processo %i assume CPU\n", em_CPU);
+                if (processos[em_CPU].temp_restante_inicio_io == 0){
+                    inserir(&fila_io, em_CPU);   
+                    em_CPU = -1;
+                }  
+                else{
+                    printf("Processo %i assume CPU\n", em_CPU);  
+                }
             }
 
             // Se algum processo assumiu a CPU, verifica por quanto tempo ele assumira a CPU
@@ -266,9 +280,10 @@ int main() {
                     tempo_restante_cpu = processos[em_CPU].temp_restante;
                 }
                 if (processos[em_CPU].temp_restante_inicio_io < tempo_restante_cpu &&  
-                processos[em_CPU].temp_restante_inicio_io >= 0){
+                processos[em_CPU].temp_restante_inicio_io > 0){
                     tempo_restante_cpu = processos[em_CPU].temp_restante_inicio_io;
                 }
+                
             }
 
         }  
@@ -340,6 +355,8 @@ int main() {
         printf("\n");
         
     }
+
+    printf("Acabou");
 
    
 }

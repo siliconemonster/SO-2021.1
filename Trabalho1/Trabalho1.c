@@ -395,9 +395,10 @@ int main() {
         printf("\n");
         
     }
-
+    printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"); 
     for (cont_print = 0; cont_print < limite_processos; cont_print++){
             turnarounds[cont_print] = processos[cont_print].tempo_finalizacao - processos[cont_print].temp_chegada;
+            printf("Turnaround do processo %d: %ds\n", cont_print, turnarounds[cont_print]);
     }
 
     printf("Acabou");

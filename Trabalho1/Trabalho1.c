@@ -11,13 +11,13 @@ Leticia Tavares da Silva - 117210390;
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#define LIMITE_PROCESSOS 4
+#define LIMITE_PROCESSOS 5
 #define FATIA 2
 #define MAX_TEMP_SERV 8
 #define DISCO 5
 #define FITA 7
 #define IMPRESSORA 12
-#define CHANCE_IO 5
+#define CHANCE_IO 7
 
 
 // Estrutura de uma fila
@@ -113,7 +113,7 @@ void NovoProcesso( struct Processo *p, int temp_entrada, int id, int temp_chegad
     else{
         p->inicio_io = 0;
         while(p->inicio_io == 0){
-            p->inicio_io = rand() % p->temp_servico;
+            p->inicio_io = rand() % (p->temp_servico + 1);
         }
 
         p->temp_restante_inicio_io = p->inicio_io;
@@ -126,6 +126,7 @@ int main() {
 
 
     srand(time(NULL)); // Para geracao de numero pseudo aleatorio
+    //srand(9); // Para geracao de numero pseudo aleatorio
     
     // Lista com a duracao de cada tipo de i/o
     // 0 -> Disco 1-> Fita Magnetica 2-> Impressora
@@ -143,6 +144,7 @@ int main() {
     int indice; // Utilizado para print
     int tempo_restante_cpu; // tempo restante de CPU do processo que a esta usando
     int turnarounds[LIMITE_PROCESSOS];
+    float media_turnarounds = 0;
 
     // Processos
     struct Processo processos[LIMITE_PROCESSOS];  
@@ -180,7 +182,7 @@ int main() {
             // Insere o novo processo na fila de alta prioridade
             inserir(&fila_alta_prio, id_processo);
             while(prox_chegada == instante){
-                prox_chegada = instante + rand() %5;
+                prox_chegada = instante + rand() %6;
             }
             // Prints
             printf("----------------------------------------\n"); 
@@ -403,8 +405,11 @@ int main() {
     printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"); 
     for (cont_print = 0; cont_print < LIMITE_PROCESSOS; cont_print++){
             turnarounds[cont_print] = processos[cont_print].tempo_finalizacao - processos[cont_print].temp_chegada;
+            media_turnarounds+=turnarounds[cont_print];
             printf("Turnaround do processo %d: %ds\n", cont_print, turnarounds[cont_print]);
     }
+    media_turnarounds = media_turnarounds/LIMITE_PROCESSOS;
+    printf("Media Turnaround: %fs\n", media_turnarounds);
 
     printf("Acabou");
 

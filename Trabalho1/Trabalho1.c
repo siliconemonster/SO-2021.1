@@ -11,14 +11,19 @@ Leticia Tavares da Silva - 117210390;
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#define limite_processos 4
+#define LIMITE_PROCESSOS 4
 #define FATIA 2
+#define MAX_TEMP_SERV 8
+#define DISCO 5
+#define FITA 7
+#define IMPRESSORA 12
+#define CHANCE_IO 5
 
 
 // Estrutura de uma fila
 struct Fila {
 
-	int elementos[limite_processos]; // Elementos serao ids dos procesoss
+	int elementos[LIMITE_PROCESSOS]; // Elementos serao ids dos procesoss
 	int primeiro; // Primeiro elemento da fila
 	int ultimo; // Ultimo elemento da fila
     int num_Processos; // Numero de processos na fila
@@ -38,7 +43,7 @@ void criarFila( struct Fila *f) {
 // Insere elemento em uma fila
 void inserir(struct Fila *f, int v) {
 
-	if(f->ultimo == limite_processos - 1)
+	if(f->ultimo == LIMITE_PROCESSOS - 1)
 		f->ultimo = -1;
 
 	f->ultimo++;
@@ -53,7 +58,7 @@ int remover( struct Fila *f ) {
 	int temp = f->elementos[f->primeiro++];
     f-> num_Processos--;
 
-	if(f->primeiro == limite_processos)
+	if(f->primeiro == LIMITE_PROCESSOS)
 		f->primeiro = 0;
    
 	return temp; // Retorna o elemento retirado
@@ -94,9 +99,9 @@ void NovoProcesso( struct Processo *p, int temp_entrada, int id, int temp_chegad
     
     p->pid = id;
     p->temp_chegada = temp_chegada;
-    p->temp_servico = rand() %8;
+    p->temp_servico = rand() % MAX_TEMP_SERV;
     while (p->temp_servico == 0){
-        p->temp_servico = rand() %8;
+        p->temp_servico = rand() % MAX_TEMP_SERV;
     }
     p->temp_restante = p->temp_servico;
 
@@ -124,7 +129,7 @@ int main() {
     
     // Lista com a duracao de cada tipo de i/o
     // 0 -> Disco 1-> Fita Magnetica 2-> Impressora
-    int duracao_ios[] = {5,7,12};
+    int duracao_ios[] = {DISCO, FITA, IMPRESSORA};
     int processos_finalizados = 0; //contador de processos finalizados
     int instante = 0;  // Instante inicial tempo = 0s
     int id_processo = 0; // Identificador de cada processo, o primeiro é o 0
@@ -137,10 +142,10 @@ int main() {
     int cont_print; // contador para printar elementos de uma fila
     int indice; // Utilizado para print
     int tempo_restante_cpu; // tempo restante de CPU do processo que a esta usando
-    int turnarounds[limite_processos];
+    int turnarounds[LIMITE_PROCESSOS];
 
     // Processos
-    struct Processo processos[limite_processos];  
+    struct Processo processos[LIMITE_PROCESSOS];  
 
     // Filas
     struct Fila fila_baixa_prio; 
@@ -151,19 +156,19 @@ int main() {
     criarFila(&fila_baixa_prio);
     criarFila(&fila_io);
  
-    while(processos_finalizados < limite_processos){
+    while(processos_finalizados < LIMITE_PROCESSOS){
 
         printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"); 
         printf("Instante %is \n\n", instante); 
         
         
         // Criação do processo
-        if (instante == prox_chegada && id_processo < limite_processos) {
+        if (instante == prox_chegada && id_processo < LIMITE_PROCESSOS) {
 
-            tem_io = rand() %2; // 50% de ter que sair pra i/o
+            tem_io = rand() % 10; // % de ter que sair pra i/o
 
             // Se tiver i/o, gera aleatoriamente o tipo da i/o
-            if (tem_io == 1){
+            if (tem_io <= CHANCE_IO){
                 tipo_io = rand() %3;
                 NovoProcesso(&processos[id_processo], duracao_ios[tipo_io], id_processo, instante);
             } 
@@ -396,7 +401,7 @@ int main() {
         
     }
     printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"); 
-    for (cont_print = 0; cont_print < limite_processos; cont_print++){
+    for (cont_print = 0; cont_print < LIMITE_PROCESSOS; cont_print++){
             turnarounds[cont_print] = processos[cont_print].tempo_finalizacao - processos[cont_print].temp_chegada;
             printf("Turnaround do processo %d: %ds\n", cont_print, turnarounds[cont_print]);
     }

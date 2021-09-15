@@ -11,7 +11,7 @@ Leticia Tavares da Silva - 117210390;
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#define LIMITE_PROCESSOS 5
+#define LIMITE_PROCESSOS 10
 #define FATIA 2
 #define MAX_TEMP_SERV 8
 #define DISCO 5
@@ -126,12 +126,12 @@ int main() {
 
 
     srand(time(NULL)); // Para geracao de numero pseudo aleatorio
-    //srand(9); // Para geracao de numero pseudo aleatorio
+    //srand(12); // Para geracao de numero pseudo aleatorio
     
     // Lista com a duracao de cada tipo de i/o
     // 0 -> Disco 1-> Fita Magnetica 2-> Impressora
     int duracao_ios[] = {DISCO, FITA, IMPRESSORA};
-    int processos_finalizados = 0; //contador de processos finalizados
+    int processos_finalizados = 0; // Contador de processos finalizados
     int instante = 0;  // Instante inicial tempo = 0s
     int id_processo = 0; // Identificador de cada processo, o primeiro é o 0
     int prox_chegada = 0; // Em quanto tempo chegará o próximo processo
@@ -142,9 +142,9 @@ int main() {
     int em_io = -1; // IO se inicia vazia
     int cont_print; // contador para printar elementos de uma fila
     int indice; // Utilizado para print
-    int tempo_restante_cpu; // tempo restante de CPU do processo que a esta usando
-    int turnarounds[LIMITE_PROCESSOS];
-    float media_turnarounds = 0;
+    int tempo_restante_cpu; // Tempo restante de CPU do processo que a esta usando
+    int turnarounds[LIMITE_PROCESSOS]; // Lista para guardar o turnaround de cada processo
+    float media_turnarounds = 0; // Média dos turnarounds
 
     // Processos
     struct Processo processos[LIMITE_PROCESSOS];  
@@ -402,6 +402,9 @@ int main() {
         printf("\n");
         
     }
+
+    printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"); 
+    printf("Todos Processos Finalizados!");
     printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"); 
     for (cont_print = 0; cont_print < LIMITE_PROCESSOS; cont_print++){
             turnarounds[cont_print] = processos[cont_print].tempo_finalizacao - processos[cont_print].temp_chegada;
@@ -409,9 +412,9 @@ int main() {
             printf("Turnaround do processo %d: %ds\n", cont_print, turnarounds[cont_print]);
     }
     media_turnarounds = media_turnarounds/LIMITE_PROCESSOS;
-    printf("Media Turnaround: %fs\n", media_turnarounds);
 
-    printf("Acabou");
+    printf("Media Turnaround: %fs\n", media_turnarounds);
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"); 
 
    
 }

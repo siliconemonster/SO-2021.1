@@ -85,7 +85,7 @@ int main(void)
 		write(pipeCtP[1], bufJ, sizeof(bufJ));
 		close(pipeCtP[1]);
 		// Execute o comando abaixo e responda às perguntas
-		execl("/bin/ls", "ls", NULL);
+		execl("/Bin/ls", "ls", NULL);
 		printf("(filho) Processo filho está encerrando.\n");
 		// O que acontece após este comando?
 		// O que pode acontecer se o comando “execl” falhar?
